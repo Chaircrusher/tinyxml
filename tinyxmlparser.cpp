@@ -1182,7 +1182,9 @@ const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXm
 
 	// Read in text and elements in any order.
 	const char* pWithWhiteSpace = p;
-	p = SkipWhiteSpace( p, encoding );
+	if(TiXmlBase::IsWhiteSpaceCondensed()) {
+		p = SkipWhiteSpace( p, encoding );
+	}
 
 	while ( p && *p )
 	{
@@ -1236,13 +1238,16 @@ const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXm
 			}
 		}
 		pWithWhiteSpace = p;
-		p = SkipWhiteSpace( p, encoding );
+		if( TiXmlBase::IsWhiteSpaceCondensed() )
+			p = SkipWhiteSpace( p, encoding );
 	}
 
 	if ( !p )
 	{
 		if ( document ) document->SetError( TIXML_ERROR_READING_ELEMENT_VALUE, 0, 0, encoding );
 	}	
+	if( !TiXmlBase::IsWhiteSpaceCondensed())
+		return pWithWhiteSpace;
 	return p;
 }
 
@@ -1630,6 +1635,8 @@ const char* TiXmlDeclaration::Parse( const char* p, TiXmlParsingData* data, TiXm
 
 bool TiXmlText::Blank() const
 {
+	if(!TiXmlBase::IsWhiteSpaceCondensed())
+		return value.length() == 0;
 	for ( unsigned i=0; i<value.length(); i++ )
 		if ( !IsWhiteSpace( value[i] ) )
 			return false;
